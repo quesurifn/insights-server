@@ -52,18 +52,23 @@ router.post('/history', function(req, res) {
 */
 
 router.post('/client', function(req, res) {
-  let history = req.body.data
+  let data = req.body.data
   let sesh = req.sessionID
   let profile
 
   console.log(history)
   console.log(sesh)
 
-  client.hset(sesh, "client", history , redis.print);
+  
+
+  let stringOne = client.hset(sesh, "client", data , redis.print);
+  let stringTwo = client.hget(sesh, "history")
+
+  let fullString = stringOne + stringTwo
 
 
   personality_insights.profile({
-  text: 'Enter more than 100 unique words here...',
+  text: fullString,
   consumption_preferences: true
   },
   function (err, response) {
