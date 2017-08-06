@@ -7,8 +7,8 @@ var redis = require("redis"),
 var PersonalityInsightsV3 = require('watson-developer-cloud/personality-insights/v3');
 
 var personality_insights = new PersonalityInsightsV3({
-  username: '<username>',
-  password: '<password>',
+  username: process.env.WATSON_USERNAME,
+  password: process.env.WATSON_PASSWORD,
   version_date: '2016-10-19'
 });
 
@@ -41,7 +41,7 @@ router.post('/history', function(req, res) {
     res.status().send({"status":"error"})
   })
 
-  res.status(200).send({"status":"success"})
+  res.status(200).send({"status":"success", "msg":"Added to DB"})
 })
 
 
@@ -67,11 +67,13 @@ router.post('/client', function(req, res) {
   consumption_preferences: true
   },
   function (err, response) {
-    if (err)
+    if (err) {
       console.log('error:', err);
-    else
+      res.status(500).send({"status":"error", "msg":"Something happened. Please try your request later."})
+     } else {
       console.log(JSON.stringify(response, null, 2));
       res.status(200).send({"status":"success", "data": response})
+     }
 });
 
 
