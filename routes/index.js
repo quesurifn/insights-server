@@ -69,11 +69,13 @@ router.post('/client', function(req, res) {
   function (err, response) {
     if (err) {
       console.log('error:', err);
-      res.status(500).send({"status":"error", "msg":"Something happened. Please try your request later."})
+      res.status(500).send({"status":"error", "msg":"Something happened. Please try your request later. "})
      } else {
       console.log(JSON.stringify(response, null, 2));
+      client.del(sesh)
       res.status(200).send({"status":"success", "data": response})
      }
+
 });
 
 
