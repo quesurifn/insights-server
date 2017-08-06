@@ -15,7 +15,7 @@ var index = require('./routes/index');
 var app = express();
 
 
-app.use(session({ secret: 'this-is-a-secret-token', cookie: { maxAge: 60000 }}));
+app.use(session({ secret: process.env.SECRET, cookie: { maxAge: 60000 }}));
 
 
 // view engine setup
