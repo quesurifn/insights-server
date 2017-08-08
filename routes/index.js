@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-
+require('dotenv').config()
 var redis = require("redis"),
     client = redis.createClient();
 
@@ -50,6 +50,30 @@ router.post('/history', function(req, res) {
   Core Call 
 
 */
+router.get('/refresh', function(req, res) {
+  let sesh = req.sessionID
+
+  let object;
+  client.hgetall(sesh, function(err, reply) {
+    if (err) {
+        console.log('err', err)
+
+    } else { 
+      console.log('reply', reply)
+    }
+    object = reply || err;
+  })
+
+
+  if (object != null) {
+    res.send({"Status":"OK"})
+  } else { 
+    res.send({"Status":"ERR"})
+  }
+
+})
+
+
 
 router.post('/client', function(req, res) {
   let data = req.body.data
@@ -60,12 +84,10 @@ router.post('/client', function(req, res) {
   console.log(sesh)
 
   
-
   let stringOne = client.hset(sesh, "client", data , redis.print);
   let stringTwo = client.hget(sesh, "history")
 
   let fullString = stringOne + stringTwo
-
 
   personality_insights.profile({
   text: fullString,
@@ -81,11 +103,9 @@ router.post('/client', function(req, res) {
       res.status(200).send({"status":"success", "data": response})
      }
 
-});
-
-
- 
+  });
 })
+
 
 
 
