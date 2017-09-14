@@ -1,16 +1,14 @@
+import * as helpers from './routeHelpers.js'
+
 var express = require('express');
 var router = express.Router();
 require('dotenv').config()
 var redis = require("redis"),
     client = redis.createClient();
 
-var PersonalityInsightsV3 = require('watson-developer-cloud/personality-insights/v3');
 
-var personality_insights = new PersonalityInsightsV3({
-  username: process.env.WATSON_USERNAME,
-  password: process.env.WATSON_PASSWORD,
-  version_date: '2016-10-19'
-});
+
+
 
 
 /* GET home page. */
@@ -20,7 +18,6 @@ router.get('/', function(req, res, next) {
 router.get('/lol', function(req, res, next) {
   res.render('index', { title: req.sessionID });
 });
-
 
 /* 
 
@@ -34,7 +31,7 @@ router.post('/history', function(req, res) {
   console.log(history)
   console.log(sesh)
 
-  client.hset(sesh, "history", history ,redis.print);
+  client.hset(sesh, "history", history , redis.print);
 
   client.on('error', function(err){
     console.log(err)
@@ -52,8 +49,8 @@ router.post('/history', function(req, res) {
 */
 router.get('/refresh', function(req, res) {
   let sesh = req.sessionID
-
   let object;
+  
   client.hgetall(sesh, function(err, reply) {
     if (err) {
         console.log('err', err)
@@ -70,7 +67,6 @@ router.get('/refresh', function(req, res) {
   } else { 
     res.send({"Status":"ERR"})
   }
-
 })
 
 
@@ -78,32 +74,29 @@ router.get('/refresh', function(req, res) {
 router.post('/client', function(req, res) {
   let data = req.body.data
   let sesh = req.sessionID
-  let profile
+  let twittername = req.body.twitter
+  let accessToken = req.body.token
+  let userId = req.body.userid
+  let facebookR, twitterR
 
-  console.log(history)
-  console.log(sesh)
-
-  
   let stringOne = client.hset(sesh, "client", data , redis.print);
   let stringTwo = client.hget(sesh, "history")
+  
+  async function main(){
+    try {
+      facebookR = await helpers.facebook(userId, accessToken)
+      twitterR = await helpers.twitter(twittername)
+      return await helpers.personalityInsights(`${facebookR} ${twitterR} ${stringOne} ${stringTwo}`)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
-  let fullString = stringOne + stringTwo
+  var final = main()
 
-  personality_insights.profile({
-  text: fullString,
-  consumption_preferences: true
-  },
-  function (err, response) {
-    if (err) {
-      console.log('error:', err);
-      res.status(500).send({"status":"error", "msg":"Something happened. Please try your request later. "})
-     } else {
-      console.log(JSON.stringify(response, null, 2));
-      client.del(sesh)
-      res.status(200).send({"status":"success", "data": response})
-     }
-
-  });
+  
+  console.log(final)
+  res.end()
 })
 
 
