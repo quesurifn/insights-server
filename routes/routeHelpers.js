@@ -20,10 +20,24 @@ var personality_insights = new PersonalityInsightsV3({
 module.exports = {
 
  facebook: function(userId, token) {
+   var arr = new Array();
    console.log('fb')
     graph.get(`${userId}/feed?access_token=${token}`, function(err, res) {
-      if(err) console.log(err)
-      else console.log(res)
+      if(err) {console.log(err)} 
+      else 
+        {
+         res.data.forEach(function(e) {
+            if (e.hasOwnProperty('message')) {
+            arr.push(e.message) 
+            } else if (e.hasOwnProperty('story')) {
+              arr.push(e.story)
+            } else {
+              console.log('something is not here')
+            }
+         }) 
+         return arr.toString()
+        }
+
     })
 },
   twitter: function(twittername) {
@@ -33,10 +47,9 @@ module.exports = {
       else console.log(data)
     })
 },
-
-  personalityInsights: function (fullString) {
-    console.log('ersonality')
-    personality_insights.profile({
+personalityInsights: function (fullString) {
+  console.log('ersonality')
+  personality_insights.profile({
       text: fullString,
       consumption_preferences: true
     },
