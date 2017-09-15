@@ -2,6 +2,8 @@ var PersonalityInsightsV3 = require('watson-developer-cloud/personality-insights
 var graph                 = require('fbgraph');
 var Twit                  = require('twit')
 
+require('dotenv').config()
+
 var T = new Twit({
   consumer_key:          process.env.CONSUMER_KEY,
   consumer_secret:       process.env.CONSUMER_SECRET,
@@ -15,30 +17,32 @@ var personality_insights = new PersonalityInsightsV3({
   version_date: '2016-10-19'
 });
 
-var facebook_config = {
-    client_id:           process.env.FB_CLIENT_ID,
-    client_secret:       process.env.FB_CLIENT_SECRET, 
-}
+module.exports = {
 
-export function facebook(userId, token) {
-    graph.get(`${userId}/feed?access_token=${accessToken}`, function(err, res) {
-        return res
+ facebook: function(userId, token) {
+   console.log('fb')
+    graph.get(`${userId}/feed?access_token=${token}`, function(err, res) {
+      if(err) console.log(err)
+      else console.log(res)
     })
-}
-
-export function twitter(twittername) {
+},
+  twitter: function(twittername) {
+    console.log('tw')
     T.get('search/tweets', { q: `from:${twittername}`, count: 500 }, function(err, data, response) {
-        return data
+      if (err) console.log(err) 
+      else console.log(data)
     })
-}
+},
 
-export function personalityInsights(fullString) {
-  personality_insights.profile({
-    text: fullString,
-    consumption_preferences: true
-  },
-  function (err, response) {
-    if (err) return err
-    else return response
-  });
+  personalityInsights: function (fullString) {
+    console.log('ersonality')
+    personality_insights.profile({
+      text: fullString,
+      consumption_preferences: true
+    },
+    function (err, response) {
+      if (err) return err
+      else return response
+    });
+  }
 }

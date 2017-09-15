@@ -1,8 +1,7 @@
-import * as helpers from './routeHelpers.js'
-
+var helpers = require('./routeHelpers')
 var express = require('express');
 var router = express.Router();
-require('dotenv').config()
+
 var redis = require("redis"),
     client = redis.createClient();
 
@@ -50,6 +49,7 @@ router.post('/history', function(req, res) {
 router.get('/refresh', function(req, res) {
   let sesh = req.sessionID
   let object;
+
   
   client.hgetall(sesh, function(err, reply) {
     if (err) {
@@ -71,6 +71,8 @@ router.get('/refresh', function(req, res) {
 
 
 
+
+
 router.post('/client', function(req, res) {
   let data = req.body.data
   let sesh = req.sessionID
@@ -79,24 +81,28 @@ router.post('/client', function(req, res) {
   let userId = req.body.userid
   let facebookR, twitterR
 
-  let stringOne = client.hset(sesh, "client", data , redis.print);
-  let stringTwo = client.hget(sesh, "history")
+  //let stringOne = client.hset(sesh, "client", data , redis.print);
+  //let stringTwo = client.hget(sesh, "history")
   
   async function main(){
     try {
       facebookR = await helpers.facebook(userId, accessToken)
       twitterR = await helpers.twitter(twittername)
-      return await helpers.personalityInsights(`${facebookR} ${twitterR} ${stringOne} ${stringTwo}`)
+      return await helpers.personalityInsights(`${facebookR} ${twitterR}`)
     } catch (e) {
-      console.log(e)
+      console.log('err main', e)
     }
   }
 
   var final = main()
+  .then(r => {
+    console.log('fina;' ,r)
+  })
+  .catch(e => {
+    console.log(e, 'final err')
+  })
 
-  
-  console.log(final)
-  res.end()
+
 })
 
 

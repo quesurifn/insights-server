@@ -6,6 +6,7 @@ var cookieParser = require('cookie-parser');
 var cookieSession = require('cookie-session')
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var cors = require('cors')
 
 
 var index = require('./routes/index');
@@ -16,6 +17,7 @@ var app = express();
 
 
 app.use(session({ secret: process.env.SECRET, cookie: { maxAge: 60000 }}));
+app.use(cors())
 
 
 // view engine setup
