@@ -35,20 +35,26 @@ module.exports = {
               console.log('something is not here')
             }
          }) 
+          console.log(arr)
          return arr.toString()
         }
 
     })
 },
   twitter: function(twittername) {
-    console.log('tw')
+    var arr = new Array()
     T.get('search/tweets', { q: `from:${twittername}`, count: 500 }, function(err, data, response) {
-      if (err) console.log(err) 
-      else console.log(data)
+      if (err) {
+        console.log(err)
+      } else {
+        data.statusess.forEach(function(e) {
+          arr.push(e.text)
+        })
+        return arr.toString()
+      }
     })
 },
-personalityInsights: function (fullString) {
-  console.log('ersonality')
+personalityInsights: function (fullString) { 
   personality_insights.profile({
       text: fullString,
       consumption_preferences: true
