@@ -80,27 +80,24 @@ router.post('/client', function(req, res) {
   let accessToken = req.body.token
   let userId = req.body.userid
   let facebookR, twitterR
-
   //let stringOne = client.hset(sesh, "client", data , redis.print);
   //let stringTwo = client.hget(sesh, "history")
   
-  async function main(){
+
+  async function main() {
     try {
-      facebookR = await helpers.facebook(userId, accessToken)
-      twitterR = await helpers.twitter(twittername)
-      return await helpers.personalityInsights(`${facebookR} ${twitterR}`)
+        facebookR = await helpers.facebook(userId, accessToken)
+        twitterR = await helpers.twitter(twittername)
+       return await helpers.personalityInsights(`${facebookR} ${twitterR}`)
     } catch (e) {
       console.log('err main', e)
     }
   }
+  
+  
+  
+  main()
 
-  var final = main()
-  .then(r => {
-    console.log('fina;' ,r)
-  })
-  .catch(e => {
-    console.log(e, 'final err')
-  })
 
 
 })
