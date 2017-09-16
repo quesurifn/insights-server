@@ -24,14 +24,18 @@ module.exports = {
    return new Promise(resolver)
      function resolver(resolve, reject) {
        console.log('called')
-      graph.get(`${userId}/feed?access_token=${token}`, function(err, res) {
+      graph.get(`${userId}/feed?access_token=${token}`, {limit: 500}, function(err, res) {
         console.log(res || err)
          if (err) {
            console.log(err)
          }
           if(res.paging && res.paging.next) {
               graph.get(res.paging.next, function(err2, res2) {
+                
+                if(res2.paging && res2.paging.next) {
+                  graph.get(res2.paging.next, function(err3, res3) {
              
+
 
                 res.data.forEach(function(e) {
                   if (e.hasOwnProperty('message')) {
@@ -52,12 +56,28 @@ module.exports = {
                     console.log('something is not here')
                   }
                 })
-             
+                
+                res3.data.forEach(function(e) {
+                  if (e.hasOwnProperty('message')) {
+                  arr.push(e.message) 
+                  } else if (e.hasOwnProperty('story')) {
+                    arr.push(e.story)
+                  } else {
+                    console.log('something is not here')
+                  }
+                })
+
                 return resolve(arr.toString())
-              
+
               })
 
-            }
+                } // if 
+          
+              })
+
+            } // if
+            
+        
       })
    }  
   
@@ -69,7 +89,7 @@ module.exports = {
       var arr = []
       T.get('search/tweets', { q: `from:${twittername}`, count: 500 }, function(err, data, response) {
         if (err) {
-          reject(err)
+          return reject(err)
           console.log(err)
         } else {
           data.statuses.forEach(function(e) {
@@ -86,14 +106,16 @@ module.exports = {
  
 },
 personalityInsights: function (fullString) { 
-  console.log('fullString', fullString)
-  personality_insights.profile({
-      text: fullString,
-      consumption_preferences: true
-    },
-    function (err, response) {
-      if (err) {console.log(err)}
-      else console.log(response)
-    });
+  return new Promise(resolver)
+  function resolver(resolve, reject) {
+    personality_insights.profile({
+        text: fullString,
+        consumption_preferences: true
+      },
+      function (err, response) {
+        if (err) {return reject(err)}
+        else return resolve(response)
+      });
+    }
   }
 }

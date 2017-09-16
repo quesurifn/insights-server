@@ -96,8 +96,13 @@ router.post('/client', function(req, res) {
   
   
   
-  main()
-
+    main()
+    .then(r => {
+      res.json(r)
+    })
+    .catch(e => {
+      res.status(400).json({"Status": 'ERR'})
+    })
 
 
 })
